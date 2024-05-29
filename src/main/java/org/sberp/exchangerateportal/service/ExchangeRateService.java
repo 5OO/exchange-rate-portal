@@ -12,16 +12,16 @@ import java.util.List;
 @Service
 public class ExchangeRateService {
 
-    private final ExchangeRateRepository repository;
+    private final ExchangeRateRepository exchangeRateRepository;
 
     private static final String EXCHANGE_RATE_API_URL = "https://www.lb.lt/webservices/FxRates/FxRates.asmx/getCurrentFxRates?tp=EU";
 
     public List<ExchangeRate> getAllRates() {
-        return repository.findAll();
+        return exchangeRateRepository.findAll();
     }
 
     public ExchangeRate saveRate(ExchangeRate rate) {
-        return repository.save(rate);
+        return exchangeRateRepository.save(rate);
     }
 
     public void fetchAndSaveRates() {

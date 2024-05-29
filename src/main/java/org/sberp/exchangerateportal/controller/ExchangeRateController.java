@@ -13,16 +13,16 @@ import java.util.List;
 public class ExchangeRateController {
 
 
-    private final ExchangeRateService service;
+    private final ExchangeRateService exchangeRateService;
 
     @GetMapping
     public List<ExchangeRate> getAllRates() {
-        return service.getAllRates();
+        return exchangeRateService.getAllRates();
     }
 
     @PostMapping
     public ExchangeRate saveRate(@RequestBody ExchangeRate rate) {
-        return service.saveRate(rate);
+        return exchangeRateService.saveRate(rate);
     }
 
 }
