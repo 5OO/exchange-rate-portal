@@ -25,4 +25,14 @@ public class ExchangeRateController {
         return exchangeRateService.saveRate(rate);
     }
 
+    @GetMapping("/fetch")
+    public void fetchAndSaveRates() {
+        exchangeRateService.fetchAndSaveRates();
+    }
+
+    @GetMapping("/{currency}")
+    public List<ExchangeRate> getRatesByCurrency(@PathVariable String currency) {
+        return exchangeRateService.getRatesByCurrency(currency);
+    }
+
 }
