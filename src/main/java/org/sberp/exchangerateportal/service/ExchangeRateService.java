@@ -66,7 +66,7 @@ public class ExchangeRateService {
 
     public List<ExchangeRate> getHistoricalRatesByCurrency(String currency) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = String.format(EXCHANGE_RATE_HISTORY_API_URL, currency, LocalDate.now().toString());
+        String url = String.format(EXCHANGE_RATE_HISTORY_API_URL, currency, LocalDate.now());
         String response = restTemplate.getForObject(url, String.class);
 
         try {
