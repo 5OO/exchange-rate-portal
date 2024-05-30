@@ -11,6 +11,9 @@ import org.sberp.exchangerateportal.repository.ExchangeRateRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class ExchangeRateService {
     private final ExchangeRateRepository exchangeRateRepository;
 
     private static final String EXCHANGE_RATE_API_URL = "https://www.lb.lt/webservices/FxRates/FxRates.asmx/getCurrentFxRates?tp=EU";
+    private static final String EXCHANGE_RATE_HISTORY_API_URL = "https://www.lb.lt/webservices/FxRates/FxRates.asmx/getFxRatesForCurrency?tp=EU&ccy=%s&dtFrom=2014-09-30&dtTo=%s";
 
     public List<ExchangeRate> getAllRates() {
         return exchangeRateRepository.findAll();
@@ -58,5 +62,35 @@ public class ExchangeRateService {
 
     public List<ExchangeRate> getRatesByCurrency(String currency) {
         return exchangeRateRepository.findByCurrency(currency);
+    }
+
+    public List<ExchangeRate> getHistoricalRatesByCurrency(String currency) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = String.format(EXCHANGE_RATE_HISTORY_API_URL, currency, LocalDate.now().toString());
+        String response = restTemplate.getForObject(url, String.class);
+
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            ForeignCurrencyExchangeRates exchangeRates = xmlMapper.readValue(response, ForeignCurrencyExchangeRates.class);
+            List<ExchangeRate> rates = new ArrayList<>();
+
+            for (ForeignCurrencyExchangeRate rate : exchangeRates.getExchangeRates()) {
+                for (AmountOfCurrency amount : rate.getAmounts()) {
+                    if (amount.getCurrency().equals(currency)) {
+                        ExchangeRate exchangeRate = new ExchangeRate();
+                        exchangeRate.setCurrency(amount.getCurrency());
+                        exchangeRate.setRate(amount.getAmount());
+                        exchangeRate.setDate(rate.getDate());
+                        rates.add(exchangeRate);
+                    }
+                }
+            }
+            return rates;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 }

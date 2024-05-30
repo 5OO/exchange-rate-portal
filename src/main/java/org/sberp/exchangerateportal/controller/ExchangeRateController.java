@@ -36,4 +36,8 @@ public class ExchangeRateController {
         return exchangeRateService.getRatesByCurrency(currency);
     }
 
+    @GetMapping("/history/{currency}")
+    public List<ExchangeRate> getHistoricalRatesByCurrency(@PathVariable String currency) {
+        return exchangeRateService.getHistoricalRatesByCurrency(currency);
+    }
 }
