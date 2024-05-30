@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
-@Table(name = "currency")
+@Table(name = "currency_name")
 @Data
 public class CurrencyName {
 
