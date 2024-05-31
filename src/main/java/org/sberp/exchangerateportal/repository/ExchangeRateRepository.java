@@ -12,6 +12,6 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
 
     List<ExchangeRate> findByCurrency(String currency);
 
-    @Query("SELECT e FROM ExchangeRate e WHERE e.date = (SELECT MAX(e2.date) FROM ExchangeRate e2)")
+    @Query("SELECT e FROM ExchangeRate e WHERE e.id IN (SELECT MAX(e2.id) FROM ExchangeRate e2 GROUP BY e2.currency)")
     List<ExchangeRate> findLatestRates();
 }
