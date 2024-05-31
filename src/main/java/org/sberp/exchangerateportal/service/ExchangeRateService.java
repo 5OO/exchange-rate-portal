@@ -55,7 +55,7 @@ public class ExchangeRateService {
                     }
                 }
             }
-            log.debug("exchange rates mapped ");
+            log.debug("exchange rates fetched and mapped ");
         } catch (Exception e) {
             e.printStackTrace();
             // TODO logging  and error handling implementation

@@ -16,15 +16,15 @@ import java.util.Properties;
 public class QuartzConfiguration {
 
     private final QuartzJobFactory jobFactory;
+    private final Properties quartzProperties;
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(Trigger trigger, JobDetail jobDetail) throws IOException {
+    public SchedulerFactoryBean schedulerFactoryBean(Trigger trigger, JobDetail jobDetail) {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
         factory.setJobFactory(jobFactory);
         factory.setJobDetails(jobDetail);
         factory.setTriggers(trigger);
-        factory.setQuartzProperties(quartzProperties());
-        factory.setSchedulerName("MyUniqueQuartzScheduler");
+        factory.setQuartzProperties(quartzProperties);
         return factory;
     }
 
@@ -45,11 +45,12 @@ public class QuartzConfiguration {
     }
 
     @Bean
-    public Trigger trigger() {
+    public Trigger trigger() throws IOException {
+        String cronSchedule = quartzProperties().getProperty("exchange.rate.job.cron.schedule");
         return TriggerBuilder.newTrigger()
                 .withIdentity("fetchExchangeRatesTrigger")
                 .forJob(jobDetail())
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(17, 29))
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronSchedule))
                 .build();
     }
 }

@@ -16,8 +16,8 @@ public class FetchExchangeRatesJob implements Job {
     private final ExchangeRateService exchangeRateService;
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("Executing FetchExchangeRatesJob");
+    public void execute(JobExecutionContext jobExecutionContext) {
+        log.info("scheduler: Executing FetchExchangeRatesJob");
         exchangeRateService.fetchAndSaveRates();
         log.info("FetchExchangeRatesJob completed successfully");
     }
