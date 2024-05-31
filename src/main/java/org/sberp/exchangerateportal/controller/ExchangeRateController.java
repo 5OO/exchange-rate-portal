@@ -17,8 +17,8 @@ public class ExchangeRateController {
     private final ExchangeRateService exchangeRateService;
 
     @GetMapping
-    public List<ExchangeRate> getAllRates() {
-        return exchangeRateService.getAllRates();
+    public List<ExchangeRate> getLatestRates() {
+        return exchangeRateService.getLatestRates();
     }
 
     @PostMapping
