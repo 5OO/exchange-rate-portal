@@ -8,7 +8,6 @@ import org.sberp.exchangerateportal.repository.CurrencyNameRepository;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,7 +42,7 @@ public class CurrencyNameService {
         try {
             File xmlFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("currencyNames/iso-4217-list-one.xml")).getFile());
             log.debug("Getting xml file: {}", xmlFile.exists());
-            log.debug("Getting xml file length is: {} bytes", xmlFile.length());
+            log.debug("xml file length is {} bytes", xmlFile.length());
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -54,27 +53,12 @@ public class CurrencyNameService {
             NodeList nList = doc.getElementsByTagName("CcyNtry");
             log.debug("node list size is {} CcyNtry elements", nList.getLength());
 
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-                Node nNode = nList.item(temp);
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElement = (Element) nNode;
-
-                    CurrencyName currencyName = new CurrencyName();
-
-                    if (eElement.getElementsByTagName("Ccy").getLength() > 0) {
-                        currencyName.setAlphabeticCode(eElement.getElementsByTagName("Ccy").item(0).getTextContent());
-                    }
-                    if (eElement.getElementsByTagName("CcyNm").getLength() > 0) {
-                        currencyName.setCurrency(eElement.getElementsByTagName("CcyNm").item(0).getTextContent());
-                    }
-                    if (eElement.getElementsByTagName("CtryNm").getLength() > 0) {
-                        currencyName.setEntityLocation(eElement.getElementsByTagName("CtryNm").item(0).getTextContent());
-                    }
-
-                    if (currencyName.getAlphabeticCode() != null && currencyName.getCurrency() != null && currencyName.getEntityLocation() != null) {
-                        currencyNames.add(currencyName);
-                        log.debug("AlphabeticCode {} parsed in sequence of {}", currencyName.getAlphabeticCode(), temp);
-                    }
+            for (int i = 0; i < nList.getLength(); i++) {
+                Element element = (Element) nList.item(i);
+                CurrencyName currencyName = parseCurrencyName(element);
+                if (currencyName != null) {
+                    currencyNames.add(currencyName);
+                    log.debug("AlphabeticCode {} parsed in sequence of {}", currencyName.getAlphabeticCode(), i);
                 }
             }
             currencyNameRepository.saveAll(currencyNames);
@@ -82,4 +66,28 @@ public class CurrencyNameService {
             e.printStackTrace();
         }
     }
+
+    private CurrencyName parseCurrencyName(Element element) {
+        String alphabeticCode = getElementValue(element, "Ccy");
+        String currency = getElementValue(element, "CcyNm");
+        String entityLocation = getElementValue(element, "CtryNm");
+
+        if (alphabeticCode != null && currency != null && entityLocation != null) {
+            CurrencyName currencyName = new CurrencyName();
+            currencyName.setAlphabeticCode(alphabeticCode);
+            currencyName.setCurrency(currency);
+            currencyName.setEntityLocation(entityLocation);
+            return currencyName;
+        }
+        return null;
+    }
+
+    private String getElementValue(Element element, String tagName) {
+        NodeList nodeList = element.getElementsByTagName(tagName);
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
+        }
+        return null;
+    }
+
 }
