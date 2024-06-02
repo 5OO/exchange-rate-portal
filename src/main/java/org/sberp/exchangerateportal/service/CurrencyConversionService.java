@@ -2,6 +2,7 @@ package org.sberp.exchangerateportal.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sberp.exchangerateportal.dto.CurrencyConversionDTO;
+import org.sberp.exchangerateportal.exception.ApiException;
 import org.sberp.exchangerateportal.model.ExchangeRate;
 import org.sberp.exchangerateportal.repository.ExchangeRateRepository;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class CurrencyConversionService {
         if (rateOptional.isPresent()) {
             return rateOptional.get().getRate();
         } else {
-            throw new IllegalArgumentException("Exchange rate not found for currency: " + currency);
+            throw new ApiException("Exchange rate not found for currency: " + currency);
         }
     }
 

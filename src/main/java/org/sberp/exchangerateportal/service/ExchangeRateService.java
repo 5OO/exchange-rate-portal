@@ -5,6 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sberp.exchangerateportal.dto.ExchangeRateDTO;
+import org.sberp.exchangerateportal.exception.ApiException;
+import org.sberp.exchangerateportal.exception.ResourceNotFoundException;
 import org.sberp.exchangerateportal.model.*;
 import org.sberp.exchangerateportal.repository.CurrencyNameRepository;
 import org.sberp.exchangerateportal.repository.ExchangeRateRepository;
@@ -52,8 +54,8 @@ public class ExchangeRateService {
             }
             log.debug("exchange rates fetched and mapped ");
         } catch (Exception e) {
-            e.printStackTrace();
-            // TODO logging  and error handling implementation
+            log.error("Failed to fetch or save exchange rates", e);
+            throw new ApiException("Failed to fetch or save exchange rates");
         }
     }
 
@@ -74,7 +76,7 @@ public class ExchangeRateService {
 
             if (exchangeRates.getExchangeRates() == null) {
                 log.error("No exchange rates found for currency: {}", currency);
-                return Page.empty();
+                throw new ResourceNotFoundException("No exchange rates found for currency: " + currency);
             }
 
             List<ExchangeRateDTO> exchangeRateDTOList = new ArrayList<>();
@@ -103,7 +105,7 @@ public class ExchangeRateService {
             return new PageImpl<>(paginatedList, PageRequest.of(page, size), exchangeRateDTOList.size());
         } catch (Exception e) {
             log.error("No exchange rates found for currency: {} ", currency, e);
-            return Page.empty();
+            throw new ApiException("Failed to fetch historical rates for currency: " + currency);
         }
     }
 
