@@ -78,7 +78,7 @@ public class ExchangeRateService {
                 for (AmountOfCurrency amount : rate.getAmounts()) {
                     if (amount.getCurrency().equals(currency)) {
                         Optional<CurrencyName> currencyNameOptional = currencyNameRepository.findById(amount.getCurrency());
-                        CurrencyName currencyName = currencyNameOptional.orElse(new CurrencyName());
+                        CurrencyName currencyName = currencyNameOptional.orElse(new CurrencyName(currency, "Unknown Currency", "Unknown Location"));
 
                         ExchangeRateDTO exchangeRateDTO = new ExchangeRateDTO(
                                 amount.getCurrency(),
