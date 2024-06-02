@@ -1,19 +1,20 @@
 package org.sberp.exchangerateportal.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sberp.exchangerateportal.dto.CurrencyConversionDTO;
 import org.sberp.exchangerateportal.service.CurrencyConversionService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class CurrencyConversionController {
 
     private final CurrencyConversionService currencyConversionService;
 
-    @GetMapping("/convert")
-    public double convertCurrency(@RequestParam String from, @RequestParam String to, @RequestParam double amount) {
-        return currencyConversionService.convert(from, to, amount);
+    @PostMapping("/convert")
+    public CurrencyConversionDTO convertCurrency(@RequestBody CurrencyConversionDTO conversionRequest) {
+        return currencyConversionService.convert(conversionRequest);
     }
+
 }
