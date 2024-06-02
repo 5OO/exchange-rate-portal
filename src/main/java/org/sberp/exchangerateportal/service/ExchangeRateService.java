@@ -13,6 +13,7 @@ import org.sberp.exchangerateportal.repository.ExchangeRateRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -63,7 +64,7 @@ public class ExchangeRateService {
         exchangeRateRepository.save(rate);
     }
 
-    public Page<ExchangeRateDTO> getHistoricalRatesByCurrency(String currency, int page, int size) {
+    public PagedModel<ExchangeRateDTO> getHistoricalRatesByCurrency(String currency, int page, int size) {
         RestTemplate restTemplate = new RestTemplate();
         String url = String.format(EXCHANGE_RATE_HISTORY_API_URL, currency, LocalDate.now());
         String response = restTemplate.getForObject(url, String.class);
@@ -102,7 +103,14 @@ public class ExchangeRateService {
             int end = Math.min((page + 1) * size, exchangeRateDTOList.size());
             List<ExchangeRateDTO> paginatedList = exchangeRateDTOList.subList(start, end);
 
-            return new PageImpl<>(paginatedList, PageRequest.of(page, size), exchangeRateDTOList.size());
+            Page<ExchangeRateDTO> exchangeRateDTOPage = new PageImpl<>(paginatedList, PageRequest.of(page, size), exchangeRateDTOList.size());
+
+            return PagedModel.of(exchangeRateDTOPage.getContent(), new PagedModel.PageMetadata(
+                    exchangeRateDTOPage.getSize(),
+                    exchangeRateDTOPage.getNumber(),
+                    exchangeRateDTOPage.getTotalElements(),
+                    exchangeRateDTOPage.getTotalPages()
+            ));
         } catch (Exception e) {
             log.error("No exchange rates found for currency: {} ", currency, e);
             throw new ApiException("Failed to fetch historical rates for currency: " + currency);

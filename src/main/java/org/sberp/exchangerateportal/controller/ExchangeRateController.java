@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sberp.exchangerateportal.dto.ExchangeRateDTO;
 import org.sberp.exchangerateportal.model.ExchangeRate;
 import org.sberp.exchangerateportal.service.ExchangeRateService;
-import org.springframework.data.domain.Page;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +25,9 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/history/{currency}")
-    public Page<ExchangeRateDTO> getHistoricalRatesByCurrency(@PathVariable String currency,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "250") int size) {
+    public PagedModel<ExchangeRateDTO> getHistoricalRatesByCurrency(@PathVariable String currency,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "250") int size) {
         return exchangeRateService.getHistoricalRatesByCurrency(currency, page, size);
     }
 }
