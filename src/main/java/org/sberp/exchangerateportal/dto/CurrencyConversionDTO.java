@@ -13,4 +13,6 @@ public class CurrencyConversionDTO {
     private String toCurrency;
     private double amount;
     private double convertedAmount;
+    private double fromCurrencyRate;
+    private double toCurrencyRate;
 }

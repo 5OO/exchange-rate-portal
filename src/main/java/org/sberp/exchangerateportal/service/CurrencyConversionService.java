@@ -16,41 +16,34 @@ public class CurrencyConversionService {
 
     public CurrencyConversionDTO convert(CurrencyConversionDTO conversionRequest) {
         double convertedAmount;
+        double fromCurrencyRate = 1;
+        double toCurrencyRate = 1;
+
         if (conversionRequest.getFromCurrency().equals("EUR")) {
-            convertedAmount=  convertFromEuro(conversionRequest.getToCurrency(),conversionRequest.getAmount());
+            toCurrencyRate = getRate(conversionRequest.getToCurrency());
+            convertedAmount = conversionRequest.getAmount() * toCurrencyRate;
         } else if (conversionRequest.getToCurrency().equals("EUR")) {
-            convertedAmount= convertToEuro(conversionRequest.getFromCurrency(), conversionRequest.getAmount());
+            fromCurrencyRate = getRate(conversionRequest.getFromCurrency());
+            convertedAmount = conversionRequest.getAmount() / fromCurrencyRate;
         } else {
-            double amountInEuro = convertToEuro(conversionRequest.getFromCurrency(), conversionRequest.getAmount());
-            convertedAmount= convertFromEuro(conversionRequest.getToCurrency(), amountInEuro);
+            fromCurrencyRate = getRate(conversionRequest.getFromCurrency());
+            toCurrencyRate = getRate(conversionRequest.getToCurrency());
+            double amountInEuro = conversionRequest.getAmount() / fromCurrencyRate;
+            convertedAmount = amountInEuro * toCurrencyRate;
         }
-        return mapToDto(conversionRequest.getFromCurrency(), conversionRequest.getToCurrency(), conversionRequest.getAmount(), convertedAmount);
+        return mapToDto(conversionRequest.getFromCurrency(), conversionRequest.getToCurrency(), conversionRequest.getAmount(), convertedAmount, fromCurrencyRate, toCurrencyRate);
     }
 
-    private double convertFromEuro(String toCurrency, double amount) {
-        Optional<ExchangeRate> rateOptional = exchangeRateRepository.findLatestRateByCurrency(toCurrency);
+    private double getRate(String currency) {
+        Optional<ExchangeRate> rateOptional = exchangeRateRepository.findLatestRateByCurrency(currency);
         if (rateOptional.isPresent()) {
-            return amount * rateOptional.get().getRate();
+            return rateOptional.get().getRate();
         } else {
-            throw new IllegalArgumentException("Exchange rate not found for currency: " + toCurrency);
+            throw new IllegalArgumentException("Exchange rate not found for currency: " + currency);
         }
     }
 
-    private double convertToEuro(String fromCurrency, double amount) {
-        Optional<ExchangeRate> rateOptional = exchangeRateRepository.findLatestRateByCurrency(fromCurrency);
-        if (rateOptional.isPresent()) {
-            return amount / rateOptional.get().getRate();
-        } else {
-            throw new IllegalArgumentException("Exchange rate not found for currency: " + fromCurrency);
-        }
-    }
-
-    private CurrencyConversionDTO mapToDto(String fromCurrency, String toCurrency, double amount, double convertedAmount) {
-        CurrencyConversionDTO dto = new CurrencyConversionDTO();
-        dto.setFromCurrency(fromCurrency);
-        dto.setToCurrency(toCurrency);
-        dto.setAmount(amount);
-        dto.setConvertedAmount(convertedAmount);
-        return dto;
+    private CurrencyConversionDTO mapToDto(String fromCurrency, String toCurrency, double amount, double convertedAmount, double fromCurrencyRate, double toCurrencyRate) {
+        return new CurrencyConversionDTO(fromCurrency, toCurrency, amount, convertedAmount, fromCurrencyRate, toCurrencyRate);
     }
 }

@@ -16,5 +16,4 @@ public class CurrencyConversionController {
     public CurrencyConversionDTO convertCurrency(@RequestBody CurrencyConversionDTO conversionRequest) {
         return currencyConversionService.convert(conversionRequest);
     }
-
 }
