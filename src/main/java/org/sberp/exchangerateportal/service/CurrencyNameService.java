@@ -25,11 +25,7 @@ public class CurrencyNameService {
 
     private final CurrencyNameRepository currencyNameRepository;
 
-    public CurrencyName getCurrencyByCode(String code) {
-        return currencyNameRepository.findById(code).orElse(null);
-    }
-
-    @PostConstruct
+     @PostConstruct
     public void init() {
         if (currencyNameRepository.count() == 0) {
             log.debug("currencyNameRepository size is {} -> starting currencyName xml file parsing", currencyNameRepository.count());
