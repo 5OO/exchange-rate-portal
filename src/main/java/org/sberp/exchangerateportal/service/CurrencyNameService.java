@@ -3,6 +3,7 @@ package org.sberp.exchangerateportal.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sberp.exchangerateportal.exception.XmlParsingException;
 import org.sberp.exchangerateportal.model.CurrencyName;
 import org.sberp.exchangerateportal.repository.CurrencyNameRepository;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,8 @@ public class CurrencyNameService {
             }
             currencyNameRepository.saveAll(currencyNames);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to parse and save currency name data", e);
+            throw new XmlParsingException("Failed to parse and save currency name data", e);
         }
     }
 
