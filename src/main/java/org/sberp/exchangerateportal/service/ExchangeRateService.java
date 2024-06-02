@@ -114,13 +114,27 @@ public class ExchangeRateService {
 
         } catch (ResourceNotFoundException e) {
             throw e;
-        }  catch (Exception e) {
+        } catch (Exception e) {
             log.error("No exchange rates found for currency: {} ", currency, e);
             throw new ApiException("Failed to fetch historical rates for currency: " + currency);
         }
     }
 
-    public List<ExchangeRate> getLatestRates() {
-        return exchangeRateRepository.findLatestRates();
+    public List<ExchangeRateDTO> getLatestRates() {
+        List<ExchangeRate> exchangeRates = exchangeRateRepository.findLatestRates();
+        return exchangeRates.stream().map(this::convertToDTO).toList();
+    }
+
+    private ExchangeRateDTO convertToDTO(ExchangeRate exchangeRate) {
+        Optional<CurrencyName> currencyNameOptional = currencyNameRepository.findById(exchangeRate.getCurrency());
+        CurrencyName currencyName = currencyNameOptional.orElse(new CurrencyName(exchangeRate.getCurrency(), "Unknown Currency", "Unknown Location"));
+
+        return new ExchangeRateDTO(
+                exchangeRate.getCurrency(),
+                exchangeRate.getRate(),
+                exchangeRate.getDate(),
+                currencyName.getCurrency(),
+                currencyName.getEntityLocation()
+        );
     }
 }
