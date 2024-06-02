@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -72,6 +71,12 @@ public class ExchangeRateService {
             xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             ForeignCurrencyExchangeRates exchangeRates = xmlMapper.readValue(response, ForeignCurrencyExchangeRates.class);
+
+            if (exchangeRates.getExchangeRates() == null) {
+                log.error("No exchange rates found for currency: {}", currency);
+                return Page.empty();
+            }
+
             List<ExchangeRateDTO> exchangeRateDTOList = new ArrayList<>();
 
             for (ForeignCurrencyExchangeRate rate : exchangeRates.getExchangeRates()) {
@@ -97,7 +102,7 @@ public class ExchangeRateService {
 
             return new PageImpl<>(paginatedList, PageRequest.of(page, size), exchangeRateDTOList.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("No exchange rates found for currency: {} ", currency, e);
             return Page.empty();
         }
     }
