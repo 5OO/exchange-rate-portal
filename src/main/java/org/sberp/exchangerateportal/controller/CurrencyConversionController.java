@@ -3,11 +3,13 @@ package org.sberp.exchangerateportal.controller;
 import lombok.RequiredArgsConstructor;
 import org.sberp.exchangerateportal.dto.CurrencyConversionDTO;
 import org.sberp.exchangerateportal.service.CurrencyConversionService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Validated
 public class CurrencyConversionController {
 
     private final CurrencyConversionService currencyConversionService;

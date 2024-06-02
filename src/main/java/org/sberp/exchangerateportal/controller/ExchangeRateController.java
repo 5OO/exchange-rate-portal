@@ -5,6 +5,7 @@ import org.sberp.exchangerateportal.dto.ExchangeRateDTO;
 import org.sberp.exchangerateportal.model.ExchangeRate;
 import org.sberp.exchangerateportal.service.ExchangeRateService;
 import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/exchange-rates")
+@Validated
 public class ExchangeRateController {
 
     private final ExchangeRateService exchangeRateService;
