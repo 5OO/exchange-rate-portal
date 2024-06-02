@@ -111,7 +111,10 @@ public class ExchangeRateService {
                     exchangeRateDTOPage.getTotalElements(),
                     exchangeRateDTOPage.getTotalPages()
             ));
-        } catch (Exception e) {
+
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        }  catch (Exception e) {
             log.error("No exchange rates found for currency: {} ", currency, e);
             throw new ApiException("Failed to fetch historical rates for currency: " + currency);
         }
