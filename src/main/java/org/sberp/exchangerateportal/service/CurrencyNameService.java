@@ -65,7 +65,7 @@ public class CurrencyNameService {
         }
     }
 
-    private CurrencyName parseCurrencyName(Element element) {
+    public CurrencyName parseCurrencyName(Element element) {
         String alphabeticCode = getElementValue(element, "Ccy");
         String currency = getElementValue(element, "CcyNm");
         String entityLocation = getElementValue(element, "CtryNm");
@@ -80,7 +80,7 @@ public class CurrencyNameService {
         return null;
     }
 
-    private String getElementValue(Element element, String tagName) {
+    public String getElementValue(Element element, String tagName) {
         NodeList nodeList = element.getElementsByTagName(tagName);
         if (nodeList.getLength() > 0) {
             return nodeList.item(0).getTextContent();
