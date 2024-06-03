@@ -25,21 +25,21 @@ This web application provides the following functionalities:
 ## Logic
 
 - Hibernate is used to generate tables if they do not already exist.
-- ISO-4217 standard currency codes are downloaded from the International Organization for Standardization (ISO) webpage in XML format and parsed during the initial run if the table is not available in the database.
-- Daily rate updates are conducted via a scheduled cron job using Quartz. Schedule can be modified from quartz.properties file.
-- The currency converter uses the latest rates from the H2 file database for conversions.
-- DTOs (Data Transfer Objects) are used to aggregate rates and currency name data.
+- ISO-4217 standard currency codes in XML is downloaded to `exchange-rate-portal/src/main/resources/currencyNames` folder, from the International Organization for Standardization (ISO) webpage. Files is in XML format and parsed during the initial run of application in case the currency names table is not available in the database yet.
+- Daily exchange rate updates are conducted via a scheduled cron job using Quartz. Schedule can be modified from `quartz.properties` file.
+- The currency converter uses the latest exchange rates from the H2 file database for conversions. Exchange rates are updated via Quartz.
+- DTOs (Data Transfer Objects) are used to aggregate rates and currency name data for UI.
 
 ## Backend Development
 
 - The backend service handles fetching and storing exchange rates, converting currencies, and managing historical rate data.
-- Exchange rates are fetched from the external service and stored in the H2 file database.
-- Historical rates are paginated and can be queried by currency.
+- Daily exchange rate updates are fetched from the external service and stored in the H2 file database.
+- Historical rates are paginated and can be queried by currency, retrieving data from `lb.lt`site.
 - The currency conversion logic handles conversions involving EUR and other currencies.
 
 ## Frontend
 
-- A tailored UI built with Vue.js tools is available in a separate repository: [exchange-rate-portal-frontend](https://github.com/5OO/exchange-rate-portal-frontend).
+- A tailored UI built with Vue.js 3 is available in a separate repository: [exchange-rate-portal-frontend](https://github.com/5OO/exchange-rate-portal-frontend).
 
 ## Getting Started
 
@@ -68,12 +68,13 @@ This web application provides the following functionalities:
 
 ### Configuration
 
-- The application properties can be configured in `src/main/resources/application.properties`. Make sure that appropriate location for H2 file DB is specified in `spring.datasource.url` . Apache Tomcat WebServer is initialized to run on port 8080 (http)
+- The application properties can be configured in `src/main/resources/application.properties`. Make sure that appropriate url is specified for H2 file DB in `spring.datasource.url` to ensure database functioning. 
+- Apache Tomcat WebServer is initialized to run on port 8080 (http).
 - The Quartz job for fetching exchange rates is configured from `src/main/resources/quartz.properties` to run daily at a specified time.
-- H2 default DB credentials are Username: sa (default), Password: (empty by default)
+- H2 default DB credentials are Username: sa (default), Password: (empty by default).
 - H2 Console  is available for database management and query execution during development:
 
-    URL: http://localhost:8080/h2 Ensure the JDBC URL matches the path configured in application.properties.
+    console URL: http://localhost:8080/h2 Ensure the JDBC URL matches the path configured in `application.properties`.
 
 
 
