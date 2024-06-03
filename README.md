@@ -8,7 +8,7 @@ This web application provides the following functionalities:
     - Exchange rates are pulled from the [Bank of Lithuania](https://www.lb.lt/webservices/FxRates/en/) using a Quartz cron job scheduled to run every afternoon.
       https://www.lb.lt/webservices/FxRates/FxRates.asmx?op=getCurrentFxRates
 2. **Exchange Rate History**:
-    - Displays the exchange rate history for a selected currency, with pagination support.
+    - Displays the exchange rate history for a selected currency, with pagination support (`Spring HATEOAS` and `PagedModel`).
 
 3. **Currency Converter**:
     - Converts entered amounts from one currency to another using the latest exchange rates retrieved from local database.
