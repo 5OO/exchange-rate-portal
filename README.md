@@ -25,7 +25,7 @@ This web application provides the following functionalities:
 ## Logic
 
 - Hibernate is used to generate tables if they do not already exist.
-- ISO-4217 standard currency codes in XML is downloaded to `exchange-rate-portal/src/main/resources/currencyNames` folder, from the International Organization for Standardization (ISO) webpage. Files is in XML format and parsed during the initial run of application in case the currency names table is not available in the database yet.
+- ISO-4217 standard currency codes in XML is downloaded to `exchange-rate-portal/src/main/resources/currencyNames` folder, from the [International Organization for Standardization (ISO) ](https://www.currency-iso.org/dam/downloads/lists/list_one.xml)webpage . File is in XML format and parsed during the initial run of application in case the currency names table is not available in the database yet.
 - Daily exchange rate updates are conducted via a scheduled cron job using Quartz. Schedule can be modified from `quartz.properties` file.
 - The currency converter uses the latest exchange rates from the H2 file database for conversions. Exchange rates are updated via Quartz.
 - DTOs (Data Transfer Objects) are used to aggregate rates and currency name data for UI.
