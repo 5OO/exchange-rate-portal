@@ -23,5 +23,6 @@ public class ExchangeRateDTO {
     @NotBlank(message = "Currency name cannot be blank")
     private String currencyName;
 
+    @NotBlank
     private String entityLocation;
 }

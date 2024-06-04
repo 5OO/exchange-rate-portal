@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sberp.exchangerateportal.dto.ExchangeRateDTO;
 import org.sberp.exchangerateportal.exception.ApiException;
+import org.sberp.exchangerateportal.exception.NetworkException;
 import org.sberp.exchangerateportal.exception.ResourceNotFoundException;
 import org.sberp.exchangerateportal.model.*;
 import org.sberp.exchangerateportal.repository.CurrencyNameRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -33,30 +35,65 @@ public class ExchangeRateService {
     private final CurrencyNameRepository currencyNameRepository;
 
     public void fetchAndSaveRates() {
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(EXCHANGE_RATE_API_URL, String.class);
+        String response = fetchExchangeRatesWithRetry();
+        processAndSaveExchangeRates(response);
+    }
 
+    private String fetchExchangeRatesWithRetry() {
+        RestTemplate restTemplate = new RestTemplate();
+        String response = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                response = restTemplate.getForObject(EXCHANGE_RATE_API_URL, String.class);
+                if (response != null) {
+                    break; // Successful response, exit retry loop
+                }
+            } catch (ResourceAccessException e) {
+                handleRetry(i, e);
+            }
+        }
+        return response;
+    }
+
+    private void handleRetry(int attempt, ResourceAccessException e) {
+        if (attempt == 2) {
+            log.error("Failed to fetch exchange rates after {} retries", attempt + 1);
+            throw new NetworkException("Failed to fetch exchange rates after multiple attempts", e);
+        }
+        log.warn("Retrying... ({}/{})", attempt + 1, 3);
+        try {
+            Thread.sleep(2000); // Adding a delay of 2 seconds between retries
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            log.error("Retry sleep interrupted", ie);
+            throw new NetworkException("Retry sleep interrupted", ie);
+        }
+    }
+
+    private void processAndSaveExchangeRates(String response) {
         try {
             XmlMapper xmlMapper = new XmlMapper();
             xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
             ForeignCurrencyExchangeRates exchangeRates = xmlMapper.readValue(response, ForeignCurrencyExchangeRates.class);
+            saveExchangeRates(exchangeRates);
+            log.debug("Exchange rates fetched and mapped");
+        } catch (Exception e) {
+            log.error("Failed to map and save exchange rates ", e);
+            throw new ApiException("Failed to map and save exchange rates ", e);
+        }
+    }
 
-            for (ForeignCurrencyExchangeRate exchangeRate : exchangeRates.getExchangeRates()) {
-                for (AmountOfCurrency amount : exchangeRate.getAmounts()) {
-                    if (!amount.getCurrency().equals("EUR")) {
-                        ExchangeRate rate = new ExchangeRate();
-                        rate.setCurrency(amount.getCurrency());
-                        rate.setRate(amount.getAmount());
-                        rate.setDate(exchangeRate.getDate());
-                        saveRate(rate);
-                    }
+    private void saveExchangeRates(ForeignCurrencyExchangeRates exchangeRates) {
+        for (ForeignCurrencyExchangeRate exchangeRate : exchangeRates.getExchangeRates()) {
+            for (AmountOfCurrency amount : exchangeRate.getAmounts()) {
+                if (!amount.getCurrency().equals("EUR")) {
+                    ExchangeRate rate = new ExchangeRate();
+                    rate.setCurrency(amount.getCurrency());
+                    rate.setRate(amount.getAmount());
+                    rate.setDate(exchangeRate.getDate());
+                    saveRate(rate);
                 }
             }
-            log.debug("exchange rates fetched and mapped ");
-        } catch (Exception e) {
-            log.error("Failed to fetch or save exchange rates", e);
-            throw new ApiException("Failed to fetch or save exchange rates");
         }
     }
 
