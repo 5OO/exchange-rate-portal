@@ -46,7 +46,7 @@ public class ExchangeRateService {
             try {
                 response = restTemplate.getForObject(EXCHANGE_RATE_API_URL, String.class);
                 if (response != null) {
-                    break; // Successful response, exit retry loop
+                    break;
                 }
             } catch (ResourceAccessException e) {
                 handleRetry(i, e);
@@ -62,7 +62,7 @@ public class ExchangeRateService {
         }
         log.warn("Retrying... ({}/{})", attempt + 1, 3);
         try {
-            Thread.sleep(2000); // Adding a delay of 2 seconds between retries
+            Thread.sleep(3000);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             log.error("Retry sleep interrupted", ie);
